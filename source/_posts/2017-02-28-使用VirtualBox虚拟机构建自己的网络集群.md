@@ -18,7 +18,7 @@ tags:
 
 先在preference里添加一块host-only网卡，如果安装virtualbox时自动添加了，可以忽略。
 检查这块网卡的DHCP server是否启用。若禁用，需要先启用它，否则你的虚拟机不会被分配对应的IP地址。如下图所示
-![]()
+![](http://ou7hg0tk3.bkt.clouddn.com/host-only%20network%20details.jpg)
 
 然后在虚拟机的settings->network选项中，启用adapter1，选择NAT，再启用adapter2，选择Host-only mode，保存，启动虚拟机，大功告成。
 虚拟机启动后，分别在主机和虚拟机ping检测，成功！
