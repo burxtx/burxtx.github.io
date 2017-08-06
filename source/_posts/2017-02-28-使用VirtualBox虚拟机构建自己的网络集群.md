@@ -23,5 +23,4 @@ tags:
 然后在虚拟机的settings->network选项中，启用adapter1，选择NAT，再启用adapter2，选择Host-only mode，保存，启动虚拟机，大功告成。
 虚拟机启动后，分别在主机和虚拟机ping检测，成功！
 
-我用的是最新的ubuntu 16.04.2 server，启动虚拟机后检查网卡`ls /sys/class/net`，会发现网卡名不是eth0,eth1这样了，而是enp0s3，enp0s8，原因是
-ubuntu 16使用了新的网卡命名规范
+我用的是最新的ubuntu 16.04.2 server，启动虚拟机后检查网卡`ls /sys/class/net`，会发现网卡名不是eth0,eth1这样了，而是enp0s3，enp0s8，原因是ubuntu 16使用了新的网卡命名规范
