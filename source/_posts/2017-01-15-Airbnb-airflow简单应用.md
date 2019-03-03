@@ -1,5 +1,5 @@
 ---
-title: Airbnb/airflow之不简单介绍
+title: Airbnb/airflow入门介绍
 tags:
   - airflow
   - big data
@@ -10,14 +10,13 @@ categories:
 
 # 认识airflow
 
-目前在一家互联网金融公司数据部门工作，人手很少，很多大数据的架构玩不来，一切只能自己研究。
-做数据分析就得涉及到数据的ETL，OLTP的数据库不能拿来就分析。首先是extraction，老同事用了kettle作为导数工具，用cron定时运行。
-不得不说kettle的GUI确实强大，但我却对它没有太多好感，你懂的。其次，这种上百行定时任务看了就头疼。如果让我来维护简直比吃了苍蝇还恶心。
-直到在网上发现了airflow这款流程管理工具，Python写的，类似于Luigi, Oozie, Azkaban。目前还在Apache孵化中。社区和gitter都很活跃。
+目前在一家互联网金融公司数据部门工作，人员很少，很多大数据的架构没有经验，一切只能自己研究。
+做数据分析就得涉及到数据的ETL，OLTP的数据库不能拿来直接分析，所以首先就是数据extraction，老同事用了kettle作为导数工具，用cron定时运行。
+不得不说kettle的GUI确实强大，但我却对它没有太多好感。crontab也有缺点，如果数量很庞大，比如上百行定时任务，再加上各种脚本，很不方便维护和升级。
+直到在网上发现了airflow这款流程管理工具，Python写的，类似于Luigi, Oozie, Azkaban。目前还在Apache孵化中，社区和gitter都很活跃。
 
-安装很简单直接`pip install airflow`，然后根据使用目的不同还需要安装其他组件。如果做分布式架构，还需要安装mysql, celery，
-还有一个可选方案是mesos，但是我没有用过。
-安装完成后会在home目录下生成一个airflow文件夹。这样就算安装成功了。如果要做分布式，需要在每一台机器上都安装。
+安装很简单直接`pip install airflow`，然后根据使用目的不同还需要安装其他组件。如果做分布式架构，还需要安装mysql, celery或者Mesos。
+安装完成后会在home目录下生成一个airflow文件夹。这样就算安装成功了。如果要做分布式，需要在每一台机器上都安装同样的。
 
 ## 常用概念
 - **DAG**：翻译过来是有向无环图，做过大数据处理的都知道。下面是airflow官方解释
