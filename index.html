@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>TastyCode</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="You will never know everything">
+<meta property="og:type" content="website">
+<meta property="og:title" content="TastyCode">
+<meta property="og:url" content="http://burxtx.github.io/index.html">
+<meta property="og:site_name" content="TastyCode">
+<meta property="og:description" content="You will never know everything">
+<meta property="og:locale">
+<meta property="article:author" content="Tian Xi">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="TastyCode" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">TastyCode</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://burxtx.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-系统镜像自定义工具浅谈" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2025/04/17/%E7%B3%BB%E7%BB%9F%E9%95%9C%E5%83%8F%E8%87%AA%E5%AE%9A%E4%B9%89%E5%B7%A5%E5%85%B7%E6%B5%85%E8%B0%88/" class="article-date">
+  <time datetime="2025-04-17T03:12:39.000Z" itemprop="datePublished">2025-04-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2025/04/17/%E7%B3%BB%E7%BB%9F%E9%95%9C%E5%83%8F%E8%87%AA%E5%AE%9A%E4%B9%89%E5%B7%A5%E5%85%B7%E6%B5%85%E8%B0%88/">系统镜像自定义工具浅谈</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>最近要给一个客户交付一套系统，想做成全自动安装，于是调研了各种系统镜像打包工具，目标操作系统是openEuler，打包工具调研了packer，openEuler专用工具（isocut，imageTailor，oemaker），genisoimage（据说是从mkisofs fork来的），因为第一次接触这个方面，某开源软件推荐了packer，<br>于是在这上面花的时间最多，过年的前后折腾了两周，但是发现坑也最多。</p>
+<h2 id="packer"><a href="#packer" class="headerlink" title="packer"></a>packer</h2><p>这个工具是hashicorp出品的，文档看着挺“好看”的，但是该说的细节一句都没说，难道官方认为能用这个工具的人都是linux内核大牛吗，对小白极不友好。而且我提了个bug一个多月了他们公司也没有人认领。我的需求是要做一个裸金属的系统镜像，可是官方以各种车轱辘话解释我们就是不做裸金属的builder，github issues上有3个相关的讨论时隔7、8年了都没有解决。虽然有个俄罗斯的哥们提出了一个hack方法，但是只能以live boot方式启动，没有通用性。看来哈西莫多走了之后这公司是每况愈下了？</p>
+<h2 id="openEuler专用工具"><a href="#openEuler专用工具" class="headerlink" title="openEuler专用工具"></a>openEuler专用工具</h2><p>openEuler官方还算贴心一口气出了三个自定义工具，但是看文档看的眼睛都痛了也没看出有什么区别。而且文档里的错误很多，也是在gitee提了issue后就进入没人管的境地。我只试了isocut，起初还期待满满，上手挺容易的，后来发现配置有的反人性，第三方rpm包除了在ks package中指明外，还需要写入rpmlist中，而且还不能带版本和架构信息，如果我有上百个rpm要装进iso里，光写配置文件就得写到抓狂！而且如果我有不同版本要求，不让写版本号你让我怎么用啊！ </p>
+<h2 id="genisoimage"><a href="#genisoimage" class="headerlink" title="genisoimage"></a>genisoimage</h2><p>真是相见恨晚的一个工具！只用了一天时间就把自定义镜像搞完了。基本的使用方法很简单，下一篇会讲一下新手会遇到的几个坑。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://burxtx.github.io/2025/04/17/%E7%B3%BB%E7%BB%9F%E9%95%9C%E5%83%8F%E8%87%AA%E5%AE%9A%E4%B9%89%E5%B7%A5%E5%85%B7%E6%B5%85%E8%B0%88/" data-id="cm9l16hzs000pszdlt17jovvq" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Go 1.x泛型编程" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/03/01/Go%201.x%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B/" class="article-date">
+  <time datetime="2019-03-01T02:33:49.000Z" itemprop="datePublished">2019-03-01</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/03/01/Go%201.x%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B/">Golang1.x版本泛型编程</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Go是一门天生为服务器程序设计的简洁的语言，因此Go的设计原则聚焦在可扩展性，可读性和并发性，而多态性并不是这门语言的设计初衷，因此就被放在了一边。虽然在2.0版本之前还没有泛型的支持，但是go自带的一些语言特性可以满足一些类似“泛型”的要求，比如内置类型：</p>
+<ul>
+<li>array</li>
+<li>slice</li>
+<li>map</li>
+<li>chan<br>这四种类型可以用任意类型的元素初始化，例如map[yourtype]bool就可以用来实现任意元素的集合。go的一些内置函数也是通用的，比如len()既可以用于string, array, slice, 也可以用于求map的长度。</li>
+</ul>
+<p>但是如果golang内置结构和函数不能满足需求，可以从以下几种方法来入手：  </p>
+<ol>
+<li>类型断言<br>当你想实现一个通用函数的时候，会考虑传入的参数是不固定类型的，go正好提供了interface{}类型，它可以代表任意类型。当你不确定用什么类型合适的时候，用它就对了。<br>来个简单的例子：</li>
+</ol>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Container <span class="keyword">struct</span> &#123;</span><br><span class="line">	elem []<span class="keyword">interface</span>&#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(this *Container)</span> <span class="title">Put</span><span class="params">(v <span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">    *this = <span class="built_in">append</span>(*this, elem)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 取出最后一个元素</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(this *Container)</span> <span class="title">Get</span><span class="params">()</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">    ret := (*c)[<span class="built_in">len</span>(*c)<span class="number">-1</span>]</span><br><span class="line">    *c = (*c)[:<span class="built_in">len</span>(*c)<span class="number">-1</span>]</span><br><span class="line">    <span class="keyword">return</span> ret</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">assertExample</span><span class="params">()</span></span> &#123;</span><br><span class="line">	container := &amp;Container&#123;&#125;</span><br><span class="line">	container.Put(<span class="number">1</span>)</span><br><span class="line">	container.Put(<span class="string">"Hello"</span>)</span><br><span class="line">	_, ok := container.Get().(<span class="keyword">int</span>);!ok &#123;</span><br><span class="line">		fmt.Println(<span class="string">"Unable to read an int from container"</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过接口类型我们把细节完全隐藏了起来，但是我们也把运行时类型检查失败的风险留给了调用者，而且调用者每次都要写 <code>_, ok := YourType.(type);!ok{}</code> 这种类型断言，比较啰嗦。</p>
+<ol start="2">
+<li>反射机制<br>反射机制就是在运行时动态的调用对象的方法和属性，Python和Java语言都有实现，golang是通过reflect包来实现的，反射机制允许程序在编译时处理未知类型的对象，这听上去可以解决我们上面的问题，现在修改一下代码：<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Container <span class="keyword">struct</span> &#123;</span><br><span class="line">	elem reflect.Value</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewContainer</span><span class="params">(t reflect.Type)</span> *<span class="title">Container</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> &amp;Container&#123;</span><br><span class="line">		elem: reflect.MakeSlice(reflect.SliceOf(t), <span class="number">0</span>, <span class="number">10</span>),</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(this *Container)</span> <span class="title">Put</span><span class="params">(v <span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> reflect.ValueOf(val).Type() != c.elem.Type().Elem() &#123;</span><br><span class="line">        <span class="built_in">panic</span>(fmt.Sprintf(<span class="string">"Cannot set a %T into a slice of %s"</span>, val, c.elem.Type().Elem()))</span><br><span class="line">	&#125;</span><br><span class="line">	c.elem = reflect.Append(c.elem, reflect.ValueOf(val))</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(this *Container)</span> <span class="title">Get</span><span class="params">(regref <span class="keyword">interface</span>&#123;&#125;)</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">	retref = c.elem.Index(c.elem.Len()<span class="number">-1</span>)</span><br><span class="line">    c.elem = c.elem.Slice(<span class="number">0</span>, c.elem.Len()<span class="number">-1</span>)</span><br><span class="line">    <span class="keyword">return</span> retref</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">assertExample</span><span class="params">()</span></span> &#123;</span><br><span class="line">    a := <span class="number">0.123456</span></span><br><span class="line">    nc := NewContainer(reflect.TypeOf(a))</span><br><span class="line">    nc.Put(a)</span><br><span class="line">    nc.Put(<span class="number">1.11</span>)</span><br><span class="line">    nc.Put(<span class="number">2.22</span>)</span><br><span class="line">    b := <span class="number">0.0</span></span><br><span class="line">    c := nc.Get(&amp;b)</span><br><span class="line">    fmt.Println(c)</span><br><span class="line">    d := nc.Get(&amp;b)</span><br><span class="line">    fmt.Println(d)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>可以看到使用反射的代码量要增加不少，而且要写各种reflect方法的前缀，对于有代码洁癖的人来说是个灾难，也会让程序员效率变慢，因为没有编译时的类型检查，会带来额外的运行时开销。  </p>
+<ol start="3">
+<li>使用接口<br>接口有个特点是只做定义不管细节实现，可以利用这一特性实现泛型，例如标准库中的sort包就是使用接口实现对任意容器元素排序的例子<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Interface <span class="keyword">interface</span> &#123;</span><br><span class="line">	Len() <span class="keyword">int</span></span><br><span class="line">	Less(i, j <span class="keyword">int</span>) <span class="keyword">bool</span></span><br><span class="line">	Swap(i, j <span class="keyword">int</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>只要实现接口定义的这三种方法即可对自定义的容器元素进行排序，具体例子可以参考sort包的文档。查看sort包的源码后可以发现代码非常简洁，但是缺点也很明显，使用者需要自己把接口方法重新实现一遍。</p>
+<ol start="4">
+<li>代码生成工具<br>代码生成的原理是先写一个mock类型，这个mock只做占位符使用，然后通过转换工具把这个占位符替换成具体类型，已经有很多人写过了这里不再多说，缺点是生成的文件比较大，依赖第三方工具和模板语法。</li>
+</ol>
+<p>总之，golang的泛型实现没有一个固定的方法，或者说一个放之四海而皆准的理想方法，程序设计达到一定规模后，总是需要在代码效率，编译器效率和运行效率之间做出一些取舍，因此我们需要知道实现泛型的不同方法，在适当的时候使用合适的那个。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://burxtx.github.io/2019/03/01/Go%201.x%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B/" data-id="cm9l16hzs000nszdl76yzik9x" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/golang/" rel="tag">golang</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-深入浅出Go语言执行跟踪" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/05/11/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BAGo%E8%AF%AD%E8%A8%80%E6%89%A7%E8%A1%8C%E8%B7%9F%E8%B8%AA/" class="article-date">
+  <time datetime="2018-05-11T08:26:27.000Z" itemprop="datePublished">2018-05-11</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/11/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BAGo%E8%AF%AD%E8%A8%80%E6%89%A7%E8%A1%8C%E8%B7%9F%E8%B8%AA/">深入浅出Go语言trace</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>你有没有考虑过，你的goroutines是如何被go的runtime系统调度的？是否尝试理解过为什么在程序中增加了并发，但并没有给它带来更好的性能？go执行跟踪程序可以帮助回答这些疑问，还有其他和其有关性能的问题，例如延迟、竞争和较低的并行效率。</p>
+<p>该工具是Go 1.5版本加入的，通过度量go语言特定事件的运行时，例如：</p>
+<ol>
+<li>创建，启动和终止goroutines</li>
+<li>阻塞/非阻塞goroutines(syscalls, channels, locks)</li>
+<li>网络 I/O </li>
+<li>Syscalls</li>
+<li>垃圾回收</li>
+</ol>
+<p>以上事件的所有数据会被跟踪器收集，而且不会做任何类型的聚合和抽样。这在一些复杂的应用程序中，通过<code>go tool trace</code>命令对其进行分析后可能会产生一个较大的文件。</p>
+<p>在引入执行trace程序之前，已经有了pprof内存和CPU分析器，那么为什么它还会被添加到官方的工具链中呢？虽然CPU分析器做了一件很好的工作，告诉你什么函数占用了最多的CPU时间，但它并不能帮助你确定是什么阻止了goroutine运行，或者在可用的OS线程上如何调度goroutines。这正是跟踪器真正起作用的地方。trace<a href="https://docs.google.com/document/u/1/d/1FP5apqzBgr7ahCCgFO-yoVhk4YZrNIDNf9RybngBc14/pub" target="_blank" rel="noopener">设计文档</a>很好地解释了跟踪程序背后的动机以及它是如何被设计和工作的。</p>
+<h2 id="Trace概览"><a href="#Trace概览" class="headerlink" title="Trace概览"></a>Trace概览</h2><p>让我们从一个简单的“Hello，world”示例开始。在本例中，我们使用runtime/trace包将trace数据写入标准错误输出。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"os"</span></span><br><span class="line">	<span class="string">"runtime/trace"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	trace.Start(os.Stderr)</span><br><span class="line">	<span class="keyword">defer</span> trace.Stop()</span><br><span class="line">	<span class="comment">// create new channel of type int</span></span><br><span class="line">	ch := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// start new anonymous goroutine</span></span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="comment">// send 42 to channel</span></span><br><span class="line">		ch &lt;- <span class="number">42</span></span><br><span class="line">	&#125;()</span><br><span class="line">	<span class="comment">// read from channel</span></span><br><span class="line">	&lt;-ch</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个例子创建了一个无缓冲的channel，初始化一个goroutine，并发送数字42到channel。运行主goroutine时是阻塞的，它会等待另一个goroutines发送一个int数值给channel。</p>
+<p>用<code>go run main.go 2&gt; trace.out</code> 运行这段代码会发送trace数据到trace.out，之后可以用<code>go tool trace trace.out</code>读取trace。（该程序是个web app，默认启动127.0.0.1地址的一个随机端口，如果需要修改host可以加参数解决，例如 <code>go tool trace --http=&#39;:8080&#39; trace.out</code>，译者加）  </p>
+<p><code>Tips: go 1.8之前，你同时需要可执行二进制文件和trace数据来分析trace；用go 1.8之后的版本编译的程序，trace数据已经包含了go tool trace命令所有的信息。</code></p>
+<p>运行该命令后，在浏览器窗口打开该地址，它会提供一些选项。每一个都会打开trace的不同视图，涵盖了程序执行的不同信息。<br><img src="http://ou7hg0tk3.bkt.clouddn.com/trace-opts.png" alt></p>
+<ol>
+<li><p>View trace<br>最复杂、最强大和交互式的可视化显示了整个程序执行的时间轴。这个视图显示了在每个虚拟处理器上运行着什么，以及什么是被阻塞等待运行的。稍后我们将在这篇文章中深入探讨这个视图。注意它只能在chrome上显示。</p>
+</li>
+<li><p>Goroutine analysis<br>显示了在整个执行过程中，每种类型的goroutines是如何创建的。在选择一种类型之后就可以看到关于这种类型的goroutine的信息。例如，在试图从mutex获取锁、从网络读取、运行等等每个goroutine被阻塞的时间。</p>
+</li>
+<li><p>Network/Sync/Syscall blocking profile<br>这些图表显示了goroutines在这些资源上所花费的时间。它们非常接近pprof上的内存/cpu分析。这是分析锁竞争的最佳选择。</p>
+</li>
+<li><p>Scheduler latency profiler<br>为调度器级别的信息提供计时功能，显示调度在哪里最耗费时间。</p>
+</li>
+</ol>
+<h2 id="View-Trace"><a href="#View-Trace" class="headerlink" title="View Trace"></a>View Trace</h2><p>点击“View Trace”链接，你会看到一个界面，里面充满了关于整个程序执行的信息。</p>
+<p><code>Tips: 右上角的&quot;?&quot;按钮可以获取快捷方式列表，以帮助跟踪trace。</code></p>
+<p>下面的图片突出了最重要的部分，图片下面是对每个部分的说明描述：<br><img src="http://ou7hg0tk3.bkt.clouddn.com/view-trace.png" alt></p>
+<ol>
+<li>Timeline<br>显示执行的时间，根据跟踪定位的不同，时间单位可能会发生变化。你可以通过使用键盘快捷键（WASD键，就像视频游戏一样😊）来导航时间轴。</li>
+<li>Heap<br>在执行期间显示内存分配，这对于发现内存泄漏非常有用，并检查垃圾回收在每次运行时能够释放多少内存。</li>
+<li>Goroutines<br>在每个时间点显示有多少goroutines在运行，有多少是可运行的（等待被调度的）。大量可运行的goroutines可能显示调度竞争，例如，当程序创建过多的goroutines，会导致调度程序繁忙。</li>
+<li>OS Threads<br>显示有多少OS线程正在被使用，有多少个被syscalls阻塞。</li>
+<li>Virtual Processors<br>每个虚拟处理器显示一行。虚拟处理器的数量由GOMAXPROCS环境变量控制（默认为内核数）。</li>
+<li>Goroutines and events<br>显示在每个虚拟处理器上有什么goroutine在运行。连接goroutines的连线代表事件。在示例图片中，我们可以看到goroutine “G1.runtime.main”衍生出了两个不同的goroutines:G6和G5（前者是负责收集trace数据的goroutine，后者是我们使用“go”关键字启动的那个）。<br>每个处理器的第二行可能显示额外的事件，比如syscalls和运行时事件。这还包括goroutine代表运行时所做的一些工作（例如辅助垃圾回收）。<br>下图显示了当选择一个goroutine时得到的信息。<br><img src="http://ou7hg0tk3.bkt.clouddn.com/view-goroutine.png" alt><br>该信息包含：</li>
+</ol>
+<ul>
+<li>它的“名称”(Title)</li>
+<li>何时开始(Start)</li>
+<li>持续时间(Wall Duration)</li>
+<li>开始时的栈trace</li>
+<li>结束时的栈trace</li>
+<li>该goroutine产生的事件</li>
+</ul>
+<p>我们可以看到，这个goroutine创造了两个事件：trace goroutine和在channel上发送42的goroutine。<br><img src="http://ou7hg0tk3.bkt.clouddn.com/view-event.png" alt><br>通过点击一个特定的事件（点击图中的一条连线或者在点击goroutine后选择事件），我们可以看到：</p>
+<ul>
+<li>事件开始时的栈信息</li>
+<li>事件持续时长</li>
+<li>事件包含的goroutine</li>
+</ul>
+<p>你可以点击这些goroutines来定位跟踪到它们的trace数据。</p>
+<h2 id="阻塞概况"><a href="#阻塞概况" class="headerlink" title="阻塞概况"></a>阻塞概况</h2><p>从trace中获得的另一个特殊视图是网络/同步/syscall阻塞概况。阻塞概况显示了一个类似于pprof的内存/cpu概况中的图形视图。不同之处在于，这些概况显示每个goroutine在一个特定资源上花费的阻塞时间，而不是显示每个函数分配了多少内存。<br>下图告诉我们示例代码的“同步阻塞概况”<br><img src="http://ou7hg0tk3.bkt.clouddn.com/blocking-profile.png" alt><br>这告诉我们，我们的主goroutine从一个channel接收花费了12.08微秒。当太多的goroutines在竞争着获取一个资源的锁时，这种类型的图是找到锁竞争的很好的方法。</p>
+<h2 id="收集trace"><a href="#收集trace" class="headerlink" title="收集trace"></a>收集trace</h2><p>有三种收集trace的方法：</p>
+<ol>
+<li>使用<code>runtime/trace</code>包<br>这个需要调用<code>trace.Start</code>和<code>trace.Stop</code>，已经在我们的示例程序中讲过。</li>
+<li>使用<code>-trace=&lt;file&gt;</code>测试标志<br>用来收集关于被测试代码的trace时比较有用</li>
+<li>使用<code>debug/pprof/trace</code> handler<br>这是用来收集运行中的web应用的trace的最好的方法</li>
+</ol>
+<h2 id="跟踪一个web应用"><a href="#跟踪一个web应用" class="headerlink" title="跟踪一个web应用"></a>跟踪一个web应用</h2><p>想要从一个运行的web应用收集trace, 你需要添加<code>/debug/pprof/trace</code> handler。下面的代码示例展示了如何通过简单地导入<code>net/http/pprof</code>包为<code>http.DefaultServerMux</code>做到这一点。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"net/http"</span></span><br><span class="line">	_ <span class="string">"net/http/pprof"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	http.Handle(<span class="string">"/hello"</span>, http.HandlerFunc(helloHandler))</span><br><span class="line"></span><br><span class="line">	http.ListenAndServe(<span class="string">"localhost:8181"</span>, http.DefaultServeMux)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">helloHandler</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	w.Write([]<span class="keyword">byte</span>(<span class="string">"hello world!"</span>))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>为了收集trace，我们需要向endpoint发出请求，例如，<code>curl localhost:8181/debug/pprof/trace?seconds=10 &gt; trace.out</code> 此请求将阻塞10秒钟，trace数据将写入文件trace.out。像这样生成的trace可以像我们以前那样查看：<code>go tool trace trace.out</code></p>
+<p><code>Tips: 请注意，将pprof handlers暴露给Internet是不建议的。推荐的做法是在不同的只绑定到loopback接口的http.Server暴露这些endpoint。这篇[博客](http://mmcloughlin.com/posts/your-pprof-is-showing)讨论该风险，并有代码示例解释如何正确地暴露pprof handler。</code></p>
+<p>在收集trace之前，让我们首先通过wrk来给我们的服务加一些负载：<br><code>$ wrk -c 100 -t 10 -d 60s http://localhost:8181/hello</code></p>
+<p>这将使用10个线程的100个连接在60秒内发出请求。当wrk正在运行时，我们可以使用<code>curl localhost:8181/debug/pprof/trace?seconds=5 &gt; trace.out</code>来收集5s的trace数据。这会产生一个5MB的文件（如果我们能够在我的4核CPU机器上生成更多的负载，它就可以快速增长）。<br>同样，打开trace是由go tool trace命令完成的。当该工具解析文件的整个内容时，这将花费比我们之前的示例花费的时间更长。当它完成时，页面看起来略有不同：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">View trace (0s-2.546634537s)</span><br><span class="line">View trace (2.546634537s-5.00392737s)</span><br><span class="line"></span><br><span class="line">Goroutine analysis</span><br><span class="line">Network blocking profile</span><br><span class="line">Synchronization blocking profile</span><br><span class="line">Syscall blocking profile</span><br><span class="line">Scheduler latency profile</span><br></pre></td></tr></table></figure></p>
+<p>为了保证浏览器渲染呈现所有内容，该工具将trace分为两个连续的部分。更复杂的应用或更长的trace可能需要工具将其分割成更多的部分。<br>点击“View trace(2.546634537-5.00392737)”我们可以看到有很多事情正在发生：<br><img src="http://ou7hg0tk3.bkt.clouddn.com/trace-web.png" alt></p>
+<p>这个特殊的屏幕截图显示了一个GC运行情况，它从1169ms-1170ms开始，在1174ms之后结束。在这段时间里，一个OS线程（PROC 1）运行一个用于GC的goroutine，而其他goroutines则在一些GC阶段中提供辅助（这些步骤显示在goroutine的连线中，并被叫做MARK ASSIST)。在截图的最后，我们可以看到大部分分配的内存都被GC释放了。<br>另一个特别有用的信息是在“Runnable”状态下的goroutines的数量（在选定的时间内是13）：如果这个数字随着时间的推移变得很大，这就意味着我们需要更多的cpu来处理负载。</p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>trace程序是调试并发问题的强大工具。例如，竞争和逻辑冲突。但它并不能解决所有的问题：它并不是用来跟踪哪块代码花费最多CPU时间或分配的最佳工具。<code>go tool pprof</code>更适用于这些用例。<br>当你想要了解一个耗时程序的行为，并且想知道当每个goroutine不运行时它在做什么，这个工具就会很好地发挥作用。收集trace可能会有一些开销，并且会生成大量的数据用来检查。<br>不幸的是，官方文档是缺失的，因此需要进行一些试验来尝试和理解trace程序所显示的内容。这也是对官方文档和整个社区作出贡献的机会（e.g 博客文章)。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a href="https://docs.google.com/document/u/1/d/1FP5apqzBgr7ahCCgFO-yoVhk4YZrNIDNf9RybngBc14/pub" target="_blank" rel="noopener">Go execution tracer (design doc)</a></li>
+<li><a href="https://medium.com/@francesc/using-the-go-execution-tracer-to-speed-up-fractal-rendering-c06bb3760507" target="_blank" rel="noopener">Using the go tracer to speed fractal rendering</a></li>
+<li><a href="https://making.pusher.com/go-tool-trace/" target="_blank" rel="noopener">Go tool trace</a></li>
+<li><a href="http://mmcloughlin.com/posts/your-pprof-is-showing" target="_blank" rel="noopener">Your pprof is showing</a></li>
+</ol>
+<p><a href="https://blog.gopheracademy.com/advent-2017/go-execution-tracer/" target="_blank" rel="noopener">原文链接</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://burxtx.github.io/2018/05/11/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BAGo%E8%AF%AD%E8%A8%80%E6%89%A7%E8%A1%8C%E8%B7%9F%E8%B8%AA/" data-id="cm9l16hzr000mszdllhd7whud" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/golang/" rel="tag">golang</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/trace/" rel="tag">trace</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-《未来简史》读书随想" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/02/26/%E3%80%8A%E6%9C%AA%E6%9D%A5%E7%AE%80%E5%8F%B2%E3%80%8B%E8%AF%BB%E4%B9%A6%E9%9A%8F%E6%83%B3/" class="article-date">
+  <time datetime="2018-02-26T05:37:14.000Z" itemprop="datePublished">2018-02-26</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/02/26/%E3%80%8A%E6%9C%AA%E6%9D%A5%E7%AE%80%E5%8F%B2%E3%80%8B%E8%AF%BB%E4%B9%A6%E9%9A%8F%E6%83%B3/">从《未来简史》反思中国历史</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>花了几个月时间把《未来简史》看完了，感慨于作者的博学和出众的思考能力，书中不但对科技做了大胆预测和推断，也提到了很多宗教，神学和政治观点。我最近痴迷历史，恰逢研究生课程讲中国特色社会主义，在老师的推荐下，我也简单翻看了马克思韦伯的《新教伦理与资本主义精神》，有这些做铺垫，看到《未来简史》中对宗教和政治的阐述时便更容易理解了，资本主义制度，绝不是我们教科书上写的那样。我出生的年代正好赶上中国掀起市场经济浪潮，而我的父辈，祖辈，刚好经历了中国历史上最为动乱和飘摇不定的年代，他们没有太多文化，也对社会制度不甚了解，甚至我这一代还是有很多人对自己对社会制度对生活的大环境一无所知，思想守旧，极度缺乏理性思维，不能与时俱进。这是极其可怕的，沉沦的人们急需觉醒，否则思想鸦片将贻害子孙。过去一百多年，中国社会制度既姓过公也姓过私，教科书的洗脑和左的力量压制下，我们放大了社会主义的作用，而故意轻视了资本主义的影响。这里有个人值得提一下，是他强调“我们落后的关键还是我们从五十年代起，不抓经济而抓阶级斗争，搞一大二公的社会主义。我这里不是说社会主义搞错了，但我也不能说我们完全搞对了。”“发展才是硬道理，成天去争论什么资本主义、社会主义有啥意思？你搞得清楚吗？反正我是搞不清楚。”他是名副其实的，真正让大多数中国人一年到头有钱大吃大喝、消遣娱乐、满世界旅游以至于让春节都失去了年味儿的“财神”。中国（经济）在70年代末基本频临崩溃，没有他，我们极可能仍如朝鲜一样饥寒交迫，更惘谈看世界。三十年来不断有把他印到更大面额人民币上去的传闻，但最终他的形象还只是出现在《时代》周刊之类的媒体封面上。人民币大钞从10元涨到了100元，印的还是那个让我们凭票证过年才能吃点儿好的、穿衣服新三年旧三年缝缝补补又三年的大救星。<br><img src="http://ou7hg0tk3.bkt.clouddn.com/%E9%82%93%E5%B0%8F%E5%B9%B3.jpg" alt><br>（引用自华尔街见闻<a href="https://wallstreetcn.com/articles/3236961）" target="_blank" rel="noopener">https://wallstreetcn.com/articles/3236961）</a></p>
+<p>昨天一个大新闻，宪法移除国家主席任期不超两届的内容。之前在外媒多次看到过，竟然终于来了。中华民族必将崛起，社会制度可能还会变化，科学和宗教也会继续进化，又是一个戊戌年，不接受新思维，以后的日子大概不会好过。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://burxtx.github.io/2018/02/26/%E3%80%8A%E6%9C%AA%E6%9D%A5%E7%AE%80%E5%8F%B2%E3%80%8B%E8%AF%BB%E4%B9%A6%E9%9A%8F%E6%83%B3/" data-id="cm9l16hzp000fszdllnbajqww" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%B9%A6%E8%AF%84/" rel="tag">书评</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag">笔记</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-使用vscode作为Go语言开发环境遇到的问题总结" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/08/15/%E4%BD%BF%E7%94%A8vscode%E4%BD%9C%E4%B8%BAGo%E8%AF%AD%E8%A8%80%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98%E6%80%BB%E7%BB%93/" class="article-date">
+  <time datetime="2017-08-15T07:13:12.000Z" itemprop="datePublished">2017-08-15</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/08/15/%E4%BD%BF%E7%94%A8vscode%E4%BD%9C%E4%B8%BAGo%E8%AF%AD%E8%A8%80%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98%E6%80%BB%E7%BB%93/">使用vscode作为Go语言开发环境遇到的问题总结</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>最近开始学习Go语言，在windows下面用vscode + go插件做开发环境遇到了一些问题：</p>
+<ol>
+<li>代码补全不能用</li>
+<li>代码定义和引用找不到</li>
+</ol>
+<p>总结一下主要是go插件的使用，和gopath的设置问题</p>
+<ol>
+<li><p>go插件并没有为你做完所有事情，你需要自己用<code>go get</code>安装必要的外部包，或者点击右下角的Analysis Tools Missing 按钮，vscode可以帮你自动安装，这和命令行执行go get是一样的。<br> 另外，go get命令在windows下要注意加参数  </p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go get -u -ldflags -H=windowsgui github.com/nsf/gocode</span><br></pre></td></tr></table></figure>
+<p> 这样可以避免windows服务器程序窗口挂起。</p>
+</li>
+<li><p>gopath可以设置多个：我在本机环境变量中加了两个路径到GOPATH中，也在vscode设置中设置好了，但是只能够在标准库包中找到代码定义和引用的跳转，引用第三方库的时候就找不到了。经过一番研究，是vscode的设置问题，需要在gopath中把两个path都写上，举例如下</p>
+ <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">"go.gopath": "C:/path1;D:/path2"</span><br></pre></td></tr></table></figure>
+<p> windows环境变量是用分号分隔，所以这里也用分号，写到一行里。这回vscode就可以跳转到外部包的定义和引用了</p>
+</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://burxtx.github.io/2017/08/15/%E4%BD%BF%E7%94%A8vscode%E4%BD%9C%E4%B8%BAGo%E8%AF%AD%E8%A8%80%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98%E6%80%BB%E7%BB%93/" data-id="cm9l16hzo000eszdl5z5n8iht" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/golang/" rel="tag">golang</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-深入探讨airflow中的日期问题" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/06/16/%E6%B7%B1%E5%85%A5%E6%8E%A2%E8%AE%A8airflow%E4%B8%AD%E7%9A%84%E6%97%A5%E6%9C%9F%E9%97%AE%E9%A2%98/" class="article-date">
+  <time datetime="2017-06-16T05:52:56.000Z" itemprop="datePublished">2017-06-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/06/16/%E6%B7%B1%E5%85%A5%E6%8E%A2%E8%AE%A8airflow%E4%B8%AD%E7%9A%84%E6%97%A5%E6%9C%9F%E9%97%AE%E9%A2%98/">深入探讨airflow中的日期问题</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>最近用airflow做流程调度，遇到了不少跟时间相关的问题。现在整理一下遇到的几个时间，并给出他们在源码中的定义。</p>
+<h2 id="模板时间"><a href="#模板时间" class="headerlink" title="模板时间"></a>模板时间</h2><p>在models.py get_template_context(self, session=None)函数中定义<br><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">ds = self.execution_date.isoformat()[:<span class="number">10</span>]</span><br><span class="line">ts = self.execution_date.isoformat()</span><br><span class="line">yesterday_ds = (self.execution_date - timedelta(<span class="number">1</span>)).isoformat()[:<span class="number">10</span>]</span><br><span class="line">tomorrow_ds = (self.execution_date + timedelta(<span class="number">1</span>)).isoformat()[:<span class="number">10</span>]</span><br><span class="line"></span><br><span class="line">prev_execution_date = task.dag.previous_schedule(self.execution_date)</span><br><span class="line">next_execution_date = task.dag.following_schedule(self.execution_date)</span><br><span class="line"></span><br><span class="line">ds_nodash = ds.replace(<span class="string">'-'</span>, <span class="string">''</span>)</span><br><span class="line">ts_nodash = ts.replace(<span class="string">'-'</span>, <span class="string">''</span>).replace(<span class="string">':'</span>, <span class="string">''</span>)</span><br><span class="line">yesterday_ds_nodash = yesterday_ds.replace(<span class="string">'-'</span>, <span class="string">''</span>)</span><br><span class="line">tomorrow_ds_nodash = tomorrow_ds.replace(<span class="string">'-'</span>, <span class="string">''</span>)</span><br></pre></td></tr></table></figure></p>
+<p>可见模板时间全部依赖execution_date, execution_date从哪定义的呢？稍后说</p>
+<p>使用模板变量是还遇到一个格式化字符串问题：例如我有下面一个模板字符串<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">sqoop_inc_cmd = <span class="string">r"""</span></span><br><span class="line"><span class="string">    sqoop import \</span></span><br><span class="line"><span class="string">    --connect 'jdbc:sqlserver://hostname:port;username=USERNAME;password=PASSWORD;database=DBNAME' \</span></span><br><span class="line"><span class="string">    --query "&#123;&#123; params.query &#125;&#125; and \$CONDITIONS" \</span></span><br><span class="line"><span class="string">    --delete-target-dir \</span></span><br><span class="line"><span class="string">    --target-dir &#123;&#123; params.targetdir &#125;&#125; \</span></span><br><span class="line"><span class="string">    --hive-import \</span></span><br><span class="line"><span class="string">    --hive-table &#123;&#123; params.hivetable &#125;&#125; \</span></span><br><span class="line"><span class="string">    --fields-terminated-by '\t' \</span></span><br><span class="line"><span class="string">    --hive-partition-key ds \</span></span><br><span class="line"><span class="string">    --hive-partition-value &#123;&#123; params.ds&#125;&#125; \</span></span><br><span class="line"><span class="string">    --null-string '\\N' \</span></span><br><span class="line"><span class="string">    --null-non-string '\\N' \</span></span><br><span class="line"><span class="string">    -m 1</span></span><br><span class="line"><span class="string">"""</span></span><br></pre></td></tr></table></figure></p>
+<p>如果params.ds这个变量是用bash_operator参数传递的，模板的变量替换会失败。猜测可能是因为ds变量命名问题<br>改成params.ds_value后，模板变量替换正常。</p>
+<h2 id="execution-date"><a href="#execution-date" class="headerlink" title="execution_date"></a>execution_date</h2><p>找到airflow web 页面，execution date随处可见，分两种：</p>
+<ul>
+<li>一种是scheduled run, dag的execution date 是start date减去一天</li>
+<li>另一种是external triggered run, execution date就是当时触发的时间</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://burxtx.github.io/2017/06/16/%E6%B7%B1%E5%85%A5%E6%8E%A2%E8%AE%A8airflow%E4%B8%AD%E7%9A%84%E6%97%A5%E6%9C%9F%E9%97%AE%E9%A2%98/" data-id="cm9l16hzn000aszdlkyvspyst" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/airflow/" rel="tag">airflow</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-使用VirtualBox虚拟机构建自己的网络集群" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/02/28/%E4%BD%BF%E7%94%A8VirtualBox%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%9E%84%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E7%BD%91%E7%BB%9C%E9%9B%86%E7%BE%A4/" class="article-date">
+  <time datetime="2017-02-28T10:16:53.000Z" itemprop="datePublished">2017-02-28</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/02/28/%E4%BD%BF%E7%94%A8VirtualBox%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%9E%84%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E7%BD%91%E7%BB%9C%E9%9B%86%E7%BE%A4/">使用VirtualBox虚拟机构建自己的网络集群</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>最近在学习搭建Hadoop分布式系统，折腾一番后发现，利用虚拟机搭建实验环境真是很快。这里介绍一下虚拟机集群常用的网络类型。</p>
+<h2 id="Bridge"><a href="#Bridge" class="headerlink" title="Bridge"></a>Bridge</h2><p>最初我选择了桥接模式，这种方式是把虚拟机和主机归入一个局域网络中，虚拟机要设置成静态IP，主机和虚拟机之间互相可以访问，虚拟机可以上网。<br>缺点是虚拟机占用局域网的ip资源，而且如果换了网络环境，需要重新更改ip地址。</p>
+<h2 id="Host-only"><a href="#Host-only" class="headerlink" title="Host-only"></a>Host-only</h2><p>这种方式与桥接类似。这种方式需要创建一个虚拟以太网，然后主机和虚拟机都利用这块网卡通信。<br>优点是这个局域网是虚拟的，因此可以在主机上创建多个局域网环境，不依赖物理网络。</p>
+<p>先在preference里添加一块host-only网卡，如果安装virtualbox时自动添加了，可以忽略。<br>检查这块网卡的DHCP server是否启用。若禁用，需要先启用它，否则你的虚拟机不会被分配对应的IP地址。如下图所示<br><img src="http://ou7hg0tk3.bkt.clouddn.com/host-only%20network%20details.jpg" alt></p>
+<p>然后在虚拟机的settings-&gt;network选项中，启用adapter1，选择NAT，再启用adapter2，选择Host-only mode，保存，启动虚拟机，大功告成。<br>虚拟机启动后，分别在主机和虚拟机ping检测，成功！</p>
+<p>我用的是最新的ubuntu 16.04.2 server，启动虚拟机后检查网卡<code>ls /sys/class/net</code>，会发现网卡名不是eth0,eth1这样了，而是enp0s3，enp0s8，原因是ubuntu 16使用了新的网卡命名规范</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://burxtx.github.io/2017/02/28/%E4%BD%BF%E7%94%A8VirtualBox%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%9E%84%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E7%BD%91%E7%BB%9C%E9%9B%86%E7%BE%A4/" data-id="cm9l16hzn000bszdlaxe13a2s" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag">网络</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%99%9A%E6%8B%9F%E6%9C%BA/" rel="tag">虚拟机</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-使用Kafka构建实时数据流" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/01/23/%E4%BD%BF%E7%94%A8Kafka%E6%9E%84%E5%BB%BA%E5%AE%9E%E6%97%B6%E6%95%B0%E6%8D%AE%E6%B5%81/" class="article-date">
+  <time datetime="2017-01-23T08:10:34.000Z" itemprop="datePublished">2017-01-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/01/23/%E4%BD%BF%E7%94%A8Kafka%E6%9E%84%E5%BB%BA%E5%AE%9E%E6%97%B6%E6%95%B0%E6%8D%AE%E6%B5%81/">使用Kafka及其组件构建实时数据流</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="认识Confluent"><a href="#认识Confluent" class="headerlink" title="认识Confluent"></a>认识Confluent</h1><p>Kafka用得最多的是他的大吞吐量的消息队列，很多公司利用这个特点构建了自己的数据管道系统。数据管道是大数据系统的灵魂。<br>由LinkedIn创建的Kafka在apache开源后并没有停下脚步，三位作者离开LinkedIn创建了Confluent公司，并且开发并开源了一些新的玩具。<br>我在工作中遇到一个任务，要为第三方用户构建一个数据查询系统。不能直接拿OLTP数据库来给第三方用，需要把业务数据导入到这个查询系统里，如果能保持时效性就更好了。<br>研究了一下Kafka的主页，发现了一个新玩具蛮好用的，现在就介绍给大家。</p>
+<h1 id="Kafka-connect"><a href="#Kafka-connect" class="headerlink" title="Kafka connect"></a>Kafka connect</h1><p>Kafka connect就是这个新玩具，可以将数据和文件实时导入到Kafka中，然后再从Kafka中导入到下游系统进行存储。下面我会介绍两个例子，把MySQL source数据库导入到sink数据库，<br>重点是connect配置文件的用法。</p>
+<h1 id="快速上手"><a href="#快速上手" class="headerlink" title="快速上手"></a>快速上手</h1><h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>需要安装Java&gt;=1.7和最新版本Kafka，可以参考<a href="http://docs.confluent.io/3.1.1/installation.html" target="_blank" rel="noopener">官方手册</a>，在这里就不多说了</p>
+<h2 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h2><p>安装完成后，默认的bin文件以及被copy到了系统路径中，分别启动ZooKeeper, Kafka, Schema Registry，为了方便调试，我都在前台运行<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Start ZooKeeper.  Run this command in its own terminal.</span></span><br><span class="line">$ ./bin/zookeeper-server-start ./etc/kafka/zookeeper.properties</span><br><span class="line"></span><br><span class="line"><span class="comment"># Start Kafka.  Run this command in its own terminal.</span></span><br><span class="line">$ ./bin/kafka-server-start ./etc/kafka/server.properties</span><br><span class="line"></span><br><span class="line"><span class="comment"># Start Schema Registry. Run this command in its own terminal.</span></span><br><span class="line">$ ./bin/schema-registry-start ./etc/schema-registry/schema-registry.properties</span><br></pre></td></tr></table></figure></p>
+<p>Kafka connect只包含了PostgreSQL和SQLite的JDBC驱动，没有MySQL驱动，我理解可能因为MySQL是商业公司的产品，所以没有包含进来，没有关系，可以自己下载。<br>下载<a href="https://dev.mysql.com/downloads/connector/j/" target="_blank" rel="noopener">MySQL驱动</a>，把jar文件解压到<code>/usr/share/java/kafka-connect-jdbc</code>就可以了。</p>
+<p>在<code>/etc/kafka-connect-jdbc/</code>下面有一些配置文件的模板，先来复制一个source模板，然后在这基础上添加我们自己的参数：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">name=mysql-myprj-source</span><br><span class="line">connector.class=io.confluent.connect.jdbc.JdbcSourceConnector</span><br><span class="line">tasks.max=1</span><br><span class="line">connection.url=jdbc:mysql://localhost:3306/myprj_online?user=root&amp;password=mypassword</span><br><span class="line">table.whitelist=main_orderinfo</span><br><span class="line">mode=incrementing</span><br><span class="line">incrementing.column.name=right_id</span><br><span class="line">topic.prefix=mysql-</span><br></pre></td></tr></table></figure></p>
+<p>然后再复制一个sink模板，修改如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">name=sink-mysql-myprj</span><br><span class="line">connector.class=io.confluent.connect.jdbc.JdbcSinkConnector</span><br><span class="line">tasks.max=1</span><br><span class="line">topics=mysql-main_orderinfo</span><br><span class="line">connection.url=jdbc:mysql://localhost:3306/myprj_copy?user=root&amp;password=mypassword</span><br><span class="line">auto.create=true</span><br></pre></td></tr></table></figure></p>
+<p>这里我把同一个节点上的online数据库复制到了另一个copy数据库中。<br>接下来运行执行standalone模式的worker：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 第一个参数是worker的配置文件，后面可以跟无数个connector[connector1, connector2,...]</span></span><br><span class="line">connect-standalone /etc/schema-registry/connect-avro-standalone.properties /etc/kafka-connect-jdbc/<span class="built_in">source</span>-mysql-myprj.properties /etc/kafka-connect-jdbc/sink-mysql-myprj.properties</span><br></pre></td></tr></table></figure></p>
+<p>然后去查看copy数据库，可以看到数据都已经同步过来了，在source库中插入一条数据，可以看到copy库中也出现了这条记录。</p>
+<h1 id="遇到的几个小问题"><a href="#遇到的几个小问题" class="headerlink" title="遇到的几个小问题"></a>遇到的几个小问题</h1><ul>
+<li>Kafka中包含了多个slf4j，运行时可能会报错，只要删除其中一个即可</li>
+<li>hostname可能会出现不能识别的问题，这时只要把hostname在<code>/etc/hosts</code>中映射到127.0.0.1即可</li>
+<li>运行worker是可以跟着多个connect配置文件的，我之前错误的启动了两个standalone worker，一直报错说REST server找不到，是因为<code>/etc/schema-registry/connect-avro-standalone.properties</code><br>只能对应一个worker, 如果启动多个standalone worker，需要针对worker实例分别对<code>offset.storage.file.filename</code>和<code>rest.port</code>进行配置</li>
+</ul>
+<p>第二个例子会深入介绍一下connect配置文件的用法，下一篇再讲吧，happy big data~</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://burxtx.github.io/2017/01/23/%E4%BD%BF%E7%94%A8Kafka%E6%9E%84%E5%BB%BA%E5%AE%9E%E6%97%B6%E6%95%B0%E6%8D%AE%E6%B5%81/" data-id="cm9l16hzm0007szdlh678lxs8" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/big-data/" rel="tag">big data</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-初识Spark" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/01/19/%E5%88%9D%E8%AF%86Spark/" class="article-date">
+  <time datetime="2017-01-19T02:02:59.000Z" itemprop="datePublished">2017-01-19</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/01/19/%E5%88%9D%E8%AF%86Spark/">初识Spark</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>最近在看《Spark for python developer》, 在安装spark和集成notebook时遇到一点小问题，记录一下。<br>直接安装Spark编译后的最新版本，现在notebook已经被jupyter集成，也需要安装。然后需要设置两个环境变量如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export PYSPARK_DRIVER_PYTHON=jupyter</span><br><span class="line">export PYSPARK_DRIVER_PYTHON_OPTS=&quot;notebook --NotebookApp.open_browser=False --NotebookApp.ip=&apos;*&apos; --NotebookApp.port=8888&quot;</span><br></pre></td></tr></table></figure></p>
+<p>这时再重新运行 <code>./bin/pyspark</code>会看到控制台上notebook server log输出, 浏览器访问localhost:8888，就可以看到notebook页面了</p>
+<p>接下来测试一下，统计shakespeare全集中的单词数量：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> operator <span class="keyword">import</span> add</span><br><span class="line"></span><br><span class="line">file_in = sc.textFile(<span class="string">'/opt/shakespeare.txt'</span>)</span><br><span class="line"><span class="comment"># count lines</span></span><br><span class="line">print(<span class="string">'number of lines in file: %s'</span> % file_in.count())</span><br><span class="line"><span class="comment"># add up lengths of each line</span></span><br><span class="line">chars = file_in.map(<span class="keyword">lambda</span> s: len(s)).reduce(add)</span><br><span class="line">print(<span class="string">'number of characters in file: %s'</span> % chars)</span><br><span class="line"><span class="comment"># Get words from the input file</span></span><br><span class="line">words =file_in.flatMap(<span class="keyword">lambda</span> line: re.split(<span class="string">'\W+'</span>, line.lower().strip()))</span><br><span class="line"><span class="comment"># words of more than 3 characters</span></span><br><span class="line">words = words.filter(<span class="keyword">lambda</span> x: len(x) &gt; <span class="number">3</span>)</span><br><span class="line"><span class="comment"># set count 1 per word</span></span><br><span class="line">words = words.map(<span class="keyword">lambda</span> w: (w,<span class="number">1</span>))</span><br><span class="line"><span class="comment"># reduce phase - sum count all the words</span></span><br><span class="line">words = words.reduceByKey(add)</span><br></pre></td></tr></table></figure></p>
+<p>Happy Bigdata!</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://burxtx.github.io/2017/01/19/%E5%88%9D%E8%AF%86Spark/" data-id="cm9l16hzl0006szdlehny84i8" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/big-data/" rel="tag">big data</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spark/" rel="tag">spark</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Kylin与OLAP" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/01/16/Kylin%E4%B8%8EOLAP/" class="article-date">
+  <time datetime="2017-01-16T12:16:21.000Z" itemprop="datePublished">2017-01-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/01/16/Kylin%E4%B8%8EOLAP/">Kylin使用小结</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="认识Kylin"><a href="#认识Kylin" class="headerlink" title="认识Kylin"></a>认识Kylin</h1><p>之前的BI报表开发，都是基于关系型数据库，数据仓库工程师把数据放到了大宽表里。但是关系型数据库无法满足<br>日益增长的查询需求，而且性能受到了挑战，关系型数据仓库需要向大数据数据仓库转型。<br>我是从Web开发走过来的，不了解数据仓库的设计逻辑，在网上查了下资料，了解了数据仓库的星型模型和星座模型，<br>比如<a href="http://shopperplus.github.io/blog/2015/04/12/data-warehouse-schema-desgin.html" target="_blank" rel="noopener">这篇</a>和<a href="https://en.wikipedia.org/wiki/Star_schema" target="_blank" rel="noopener">星型模型wiki</a>。<br>如果更复杂的可以用雪花模型snowflake schema <a href="https://en.wikipedia.org/wiki/Snowflake_schema" target="_blank" rel="noopener">雪花模型wiki</a><br>大数据的数据仓库，用Hive的比较多，Kylin是大数据的数据仓库OLAP引擎。</p>
+<h1 id="使用中的问题"><a href="#使用中的问题" class="headerlink" title="使用中的问题"></a>使用中的问题</h1><p>新手最重要的是看懂Learn Kylin里面的example，把每一个细节都看懂，这样就可以设计一个好的Cube.<br>在这里我先跳过安装的步骤，直接总结使用Kylin两周以来遇到的问题：</p>
+<h2 id="设计Model"><a href="#设计Model" class="headerlink" title="设计Model"></a>设计Model</h2><ul>
+<li>Kylin只支持星型模型，这一点非常重要，如果已经有了Hive表但不是星型模型，可以通过创建Hive View来使用Kylin。</li>
+<li>Model Diemnsions 需要把所有要用到的Dimensions都选上,如果遗漏了Column，在设计Cube时就找不到了。</li>
+<li>Measures也是同样，不要遗漏</li>
+<li>settings中的过滤功能可以过滤掉不需要的数据</li>
+</ul>
+<h2 id="设计Cube"><a href="#设计Cube" class="headerlink" title="设计Cube"></a>设计Cube</h2><ul>
+<li>设计Cube dimension，可以直接用Auto generation功能生成所需的维度</li>
+<li>维度有两种类型：有外键对应的维度表中的column，称为derived维度，意思是由外键派生出来的；其他的都是normal维度。<br>接下来在advnced settings中，mandatory 维度意思是每个cube都包含的；Hierarchy意思是分层的维度，例如国家-省份-城市关系</li>
+<li>在advanced settings中，rowkeys是自动生成的，但是如果column的值太长，比如ID这种字段，Encoding如果用默认的dict会报错<br><code>Caused by: java.lang.IllegalArgumentException: Too high cardinality is not suitable for dictionary</code><br>改成integer后报错消失，但目前我对rowkeys还是不太理解，我只试过integer。</li>
+<li>如果Cube已经build过，对他修改前需要先Purge</li>
+</ul>
+<h2 id="查询"><a href="#查询" class="headerlink" title="查询"></a>查询</h2><p>Kylin的SQL语法使用了Apache Calcite, 功能还是很强大的，但是使用中也有一些限制：</p>
+<ul>
+<li>不支持case when，使用case when的场景就说明聚合时还要对cube的measure结果进行重新分割，不符合Kylin的设计。可以把case when的场景就说明聚合时还要对cube的measure结果进行重新分割，不符合Kylin的设计，<br>可以把case when条件写入到列中，或者把条件放到一个lookup table中；如果Hive表改动代价比较大，可以使用Hive视图，性能是不会受到损失的。</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://burxtx.github.io/2017/01/16/Kylin%E4%B8%8EOLAP/" data-id="cm9l16hzl0005szdlbabt1pbb" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kylin/" rel="tag">Kylin</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/big-data/" rel="tag">big data</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+
+
+  <nav id="page-nav">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">__(&#39;next&#39;) &raquo;</a>
+  </nav>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kylin/" rel="tag">Kylin</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/airflow/" rel="tag">airflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/big-data/" rel="tag">big data</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/golang/" rel="tag">golang</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spark/" rel="tag">spark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/trace/" rel="tag">trace</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B9%A6%E8%AF%84/" rel="tag">书评</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag">笔记</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag">网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%99%9A%E6%8B%9F%E6%9C%BA/" rel="tag">虚拟机</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%82%E7%82%B9%E4%B8%8E%E6%84%9F%E6%83%B3/" rel="tag">观点与感想</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Kafka/" style="font-size: 10px;">Kafka</a> <a href="/tags/Kylin/" style="font-size: 10px;">Kylin</a> <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/airflow/" style="font-size: 13.33px;">airflow</a> <a href="/tags/big-data/" style="font-size: 20px;">big data</a> <a href="/tags/golang/" style="font-size: 16.67px;">golang</a> <a href="/tags/spark/" style="font-size: 10px;">spark</a> <a href="/tags/trace/" style="font-size: 10px;">trace</a> <a href="/tags/%E4%B9%A6%E8%AF%84/" style="font-size: 10px;">书评</a> <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" style="font-size: 10px;">操作系统</a> <a href="/tags/%E7%AC%94%E8%AE%B0/" style="font-size: 10px;">笔记</a> <a href="/tags/%E7%BD%91%E7%BB%9C/" style="font-size: 10px;">网络</a> <a href="/tags/%E8%99%9A%E6%8B%9F%E6%9C%BA/" style="font-size: 10px;">虚拟机</a> <a href="/tags/%E8%A7%82%E7%82%B9%E4%B8%8E%E6%84%9F%E6%83%B3/" style="font-size: 10px;">观点与感想</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/04/">April 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2025/04/17/%E7%B3%BB%E7%BB%9F%E9%95%9C%E5%83%8F%E8%87%AA%E5%AE%9A%E4%B9%89%E5%B7%A5%E5%85%B7%E6%B5%85%E8%B0%88/">系统镜像自定义工具浅谈</a>
+          </li>
+        
+          <li>
+            <a href="/2019/03/01/Go%201.x%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B/">Golang1.x版本泛型编程</a>
+          </li>
+        
+          <li>
+            <a href="/2018/05/11/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BAGo%E8%AF%AD%E8%A8%80%E6%89%A7%E8%A1%8C%E8%B7%9F%E8%B8%AA/">深入浅出Go语言trace</a>
+          </li>
+        
+          <li>
+            <a href="/2018/02/26/%E3%80%8A%E6%9C%AA%E6%9D%A5%E7%AE%80%E5%8F%B2%E3%80%8B%E8%AF%BB%E4%B9%A6%E9%9A%8F%E6%83%B3/">从《未来简史》反思中国历史</a>
+          </li>
+        
+          <li>
+            <a href="/2017/08/15/%E4%BD%BF%E7%94%A8vscode%E4%BD%9C%E4%B8%BAGo%E8%AF%AD%E8%A8%80%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98%E6%80%BB%E7%BB%93/">使用vscode作为Go语言开发环境遇到的问题总结</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2025 Tian Xi<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>
