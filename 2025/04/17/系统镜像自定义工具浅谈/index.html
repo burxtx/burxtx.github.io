@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"burxtx.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="背景最近要给一个客户交付一套系统，想做成全自动安装，于是调研了各种系统镜像打包工具，目标操作系统是openEuler，打包工具调研了packer，openEuler专用工具（isocut，imageTailor，oemaker），genisoimage（据说是从mkisofs fork来的），因为第一次接触这个方面，某开源软件推荐了packer，于是在这上面花的时间最多，过年的前后折腾了两周，但是">
+<meta property="og:type" content="article">
+<meta property="og:title" content="系统镜像自定义工具浅谈">
+<meta property="og:url" content="http://burxtx.github.io/2025/04/17/%E7%B3%BB%E7%BB%9F%E9%95%9C%E5%83%8F%E8%87%AA%E5%AE%9A%E4%B9%89%E5%B7%A5%E5%85%B7%E6%B5%85%E8%B0%88/index.html">
+<meta property="og:site_name" content="TastyCode">
+<meta property="og:description" content="背景最近要给一个客户交付一套系统，想做成全自动安装，于是调研了各种系统镜像打包工具，目标操作系统是openEuler，打包工具调研了packer，openEuler专用工具（isocut，imageTailor，oemaker），genisoimage（据说是从mkisofs fork来的），因为第一次接触这个方面，某开源软件推荐了packer，于是在这上面花的时间最多，过年的前后折腾了两周，但是">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-04-17T03:12:39.000Z">
+<meta property="article:modified_time" content="2025-04-17T15:17:53.263Z">
+<meta property="article:author" content="Tian Xi">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="操作系统">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://burxtx.github.io/2025/04/17/%E7%B3%BB%E7%BB%9F%E9%95%9C%E5%83%8F%E8%87%AA%E5%AE%9A%E4%B9%89%E5%B7%A5%E5%85%B7%E6%B5%85%E8%B0%88/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://burxtx.github.io/2025/04/17/%E7%B3%BB%E7%BB%9F%E9%95%9C%E5%83%8F%E8%87%AA%E5%AE%9A%E4%B9%89%E5%B7%A5%E5%85%B7%E6%B5%85%E8%B0%88/","path":"2025/04/17/系统镜像自定义工具浅谈/","title":"系统镜像自定义工具浅谈"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>系统镜像自定义工具浅谈 | TastyCode</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1845532112940262"
+     crossorigin="anonymous"></script>
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">TastyCode</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#packer"><span class="nav-number">2.</span> <span class="nav-text">packer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#openEuler%E4%B8%93%E7%94%A8%E5%B7%A5%E5%85%B7"><span class="nav-number">3.</span> <span class="nav-text">openEuler专用工具</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#genisoimage"><span class="nav-number">4.</span> <span class="nav-text">genisoimage</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Tian Xi"
+      src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Tian Xi</p>
+  <div class="site-description" itemprop="description">You will never know everything</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/burxtx" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;burxtx" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://burxtx.github.io/2025/04/17/%E7%B3%BB%E7%BB%9F%E9%95%9C%E5%83%8F%E8%87%AA%E5%AE%9A%E4%B9%89%E5%B7%A5%E5%85%B7%E6%B5%85%E8%B0%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Tian Xi">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TastyCode">
+      <meta itemprop="description" content="You will never know everything">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="系统镜像自定义工具浅谈 | TastyCode">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          系统镜像自定义工具浅谈
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-04-17 11:12:39 / 修改时间：23:17:53" itemprop="dateCreated datePublished" datetime="2025-04-17T11:12:39+08:00">2025-04-17</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>最近要给一个客户交付一套系统，想做成全自动安装，于是调研了各种系统镜像打包工具，目标操作系统是openEuler，打包工具调研了packer，openEuler专用工具（isocut，imageTailor，oemaker），genisoimage（据说是从mkisofs fork来的），因为第一次接触这个方面，某开源软件推荐了packer，<br>于是在这上面花的时间最多，过年的前后折腾了两周，但是发现坑也最多。</p>
+<h2 id="packer"><a href="#packer" class="headerlink" title="packer"></a>packer</h2><p>这个工具是hashicorp出品的，文档看着挺“好看”的，但是该说的细节一句都没说，难道官方认为能用这个工具的人都是linux内核大牛吗，对小白极不友好。而且我提了个bug一个多月了他们公司也没有人认领。我的需求是要做一个裸金属的系统镜像，可是官方以各种车轱辘话解释我们就是不做裸金属的builder，github issues上有3个相关的讨论时隔7、8年了都没有解决。虽然有个俄罗斯的哥们提出了一个hack方法，但是只能以live boot方式启动，没有通用性。看来哈西莫多走了之后这公司是每况愈下了？</p>
+<h2 id="openEuler专用工具"><a href="#openEuler专用工具" class="headerlink" title="openEuler专用工具"></a>openEuler专用工具</h2><p>openEuler官方还算贴心一口气出了三个自定义工具，但是看文档看的眼睛都痛了也没看出有什么区别。而且文档里的错误很多，也是在gitee提了issue后就进入没人管的境地。我只试了isocut，起初还期待满满，上手挺容易的，后来发现配置有的反人性，第三方rpm包除了在ks package中指明外，还需要写入rpmlist中，而且还不能带版本和架构信息，如果我有上百个rpm要装进iso里，光写配置文件就得写到抓狂！而且如果我有不同版本要求，不让写版本号你让我怎么用啊！ </p>
+<h2 id="genisoimage"><a href="#genisoimage" class="headerlink" title="genisoimage"></a>genisoimage</h2><p>真是相见恨晚的一个工具！只用了一天时间就把自定义镜像搞完了。基本的使用方法很简单，下一篇会讲一下新手会遇到的几个坑。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+              <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag"># 操作系统</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/03/01/Go%201.x%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B/" rel="prev" title="Golang1.x版本泛型编程">
+                  <i class="fa fa-angle-left"></i> Golang1.x版本泛型编程
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Tian Xi</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
