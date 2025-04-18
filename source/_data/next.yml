@@ -1,0 +1,4 @@
+custom_file_path:
+  head: source/_data/head.swig
+  sidebar: source/_data/sidebar.swig
+  postBodyEnd: source/_data/post-body-end.swig
