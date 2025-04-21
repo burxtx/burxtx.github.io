@@ -76,3 +76,9 @@ server:
   port: 8000
   compress: true
   header: true
+
+sitemap:
+  path: sitemap.xml
+  rel: false
+  tags: true
+  categories: true
